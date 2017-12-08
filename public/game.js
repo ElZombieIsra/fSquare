@@ -1,5 +1,17 @@
+/*
+*
+* Bueno, aquí estoy usando JQuery para "dibujar" mi juego en un canvas. 
+* Esto no es muy difícil de hacer. Puedes buscar una página que se llama 
+* canvaNinja o algo así en google para ver cómo hacer juegos con node
+* hasta te puedes robar unos juegos de ahí, jajaja.
+* Básicmente lo que hago aquí es que le digo a JQuery que cuando la 
+* página cargue por completo, realice las sentencias.
+*
+*/
 $(document).ready(()=>{
-	var socket = io();
+    //Aquí se hace la conexión
+	/*------>*/var socket = io();
+    //Definiéndo variables, blablabla
 	var user = '';
 	var canvas=null,
 	ctx=null,
@@ -41,7 +53,11 @@ $(document).ready(()=>{
 	j2Ready=false,
 	resultado = '',
 	vaya = false;
-
+    /*
+    * Aquí empieza la magia. Lo mismo que en app.js, le digo a la conexión que cuando
+    * detecte el evento 'noUser' realice una acción. Este evento viene desde el 
+    * servidor en node.
+    */
 	socket.on('noUser',(u)=>{
 		user = u;
 		localStorage.setItem('user',u);
@@ -68,7 +84,8 @@ $(document).ready(()=>{
     coño = 0;
     yy = 15;
     xx = 20;
-
+    // Recibiendo más eventos. Nota que la estructura es:
+    // (objeto).on('AquíVaElNombreDeTuEvento', funcion(paramétros, x2){aquí va tu lógica});
 	socket.on('mouseUser', (mouseX,mouseY)=>{
 		userX=mouseX-canvas.offsetLeft;
 		userY=mouseY-canvas.offsetTop;
@@ -99,6 +116,23 @@ $(document).ready(()=>{
 		}
 	});
 	socket.on('ready',()=>{
+        /*-----------------------------------------------------------------------------
+        *-----------------------------------------------------------------------------
+        * Esto es importante. Ya te dije que con socket.on escuchas eventos. 
+        * Pues aquí vemos el socket.emit() que es la función para enviar eventos
+        * Con esta función le mandas eventos al servidor para que realice algo
+        * Estructura: 
+        * (objeto).emit('DefinesNombreDeTuEvento', (parámetros que vas a mandar(estos son opcionales)))
+        * Del lado del front-end sólo usamos el socket.emit que es para responder a 
+        * 1 sólo socket, pero en el servidor tenemos diferentes funciones en socket:
+        * -"socket.emit()" responde al socket que realizó la peticion.
+        * -"socket.broadcast.emit()" responde a todos los sockets conectados 
+        * menos al socket que realizó la petición
+        * -"io.sockets.emit()" responde a todos los sockets conectados
+        * Hay más pero en este proyecto sólo están implementados estos.
+        *-----------------------------------------------------------------------------
+        *-----------------------------------------------------------------------------
+        */
 		socket.emit('dat',name,clr,localStorage.user);
 		socket.emit('nDat',localStorage.user);
 		$('#warn').text('Listo. Iniciando...');
@@ -116,7 +150,12 @@ $(document).ready(()=>{
 	socket.on('OK',()=>{
 		listos();
 	});
-
+    /*
+    * Hasta aquí es lo más importante de la parte de sockets. 
+    * Lo demás es lógica del juego en canvas. Lo puedes seguir checando.
+    * Encontrarás que, por ejemplo, al anotar 1 punto, se emite a los contrincantes
+    * que este jugador anotó 1 punto, o se emite el movimiento del ratón.
+    */
 	function init(){
         canvas=document.getElementById('miCanvas');
         ctx=canvas.getContext('2d');
